@@ -1,0 +1,10 @@
+# directories
+balloon/
+.idea/
+catr_test/
+extra/
+__MACOSX/
+
+# files
+balloon_dataset.zip
+checkpoint.pth
