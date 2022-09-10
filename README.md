@@ -19,33 +19,34 @@ pytorch-gpu 1.10.1
 cudatoolkit 11.3.1
 opencv 4.6.0.66
 scikit-learn 1.0.2
+transformers 4.20.1
+detectron2 0.6cuda113
+numpy 1.22.4
 
-```
 Note: You can also create the environment I've tested with by importing _environment.yml_ to conda.
+```
 
-
-<br>
 
 ## Preprocessing Data
 
-The AudioSet dataset is downloaded using this [repository](https://github.com/AmirSh15/AudioSet_downloader). For feature extraction part, [CoCLR](https://github.com/TengdaHan/CoCLR) (only need to put _CoCLR-ucf101-rgb-128-s3d-ep182.tar_ pretrained model in _pretrained_models_ directory) and [VGGish](https://github.com/harritaylor/torchvggish) (need to be installed separately) are employed for video and audio correspondigly. 
-For feature extraction, use code in _utils/Feature_ext.py_ and _Merge_extracted_features.py_ afterwards.
+The image captioning transformer model and CNN both is trained on CANDID-PTX dataset, for this aim you can preprocess the data using dataloader in captioning/data/transformer_dataloader.py (for transformer) and captioning/data/cnn_dataloader.py (for CNN)
 
-Note: you can download the processed data from [here](https://livewarwickac-my.sharepoint.com/:f:/g/personal/u1880714_live_warwick_ac_uk/EpfXBr2iEhdLkd6eI_MInnMBthWBj89ryaf1IforW2JO8Q?e=zOwFzm) and put in this directory:
+The Segmentaion model can be trained on both ChestX-Det dataset that you can download from [here](https://github.com/Deepwise-AILab/ChestX-Det-Dataset) and CANDID-PTX dataset that you have to recieve access to it from [here](https://auckland.figshare.com/articles/dataset/CANDID-PTX/14173982) and CANDID-PTX dataset paper can be found [here](https://pubs.rsna.org/doi/10.1148/ryai.2021210136)
+As detectron2 is implemented to train the segmentation model, the data is better to be in coco style, for this aim you can use the dataloader file in segmentation/data/dataloader for both datasets to prepare them in coco style and load for training process.
+Also for verification of your annotations in coco style, you can use the visualtization file in segmentation/data/data_visualize.py
 
+
+You should place the data in the following structure:
 ```
-/data/
-  AudioSet/
-    train/
-        Output_clip_len_0.25_audio_101/
-            AudioSet_embedds_A capella.h5
-            AudioSet_embedds_Accelerating, revving, vroom.h5
-            ...
-    eval/
-        Output_clip_len_0.25_audio_101/
-            AudioSet_embedds_A capella.h5
-            AudioSet_embedds_Accelerating, revving, vroom.h5
-            ...
+/segmentation/
+  data/
+    CANDID_PTX/
+        annotations/
+        images/
+
+    ChestX_Det/
+        annotations/
+        images/
 ```
 
 
@@ -53,63 +54,12 @@ Note: you can download the processed data from [here](https://livewarwickac-my.s
 
 ## Training
 
-This code is written using [detectron2](https://github.com/facebookresearch/detectron2). You can train the model with running main.py . 
-You can also config the model and training parameters in _configs/AudioSey.yaml_.
+This code is written using [detectron2](https://github.com/facebookresearch/detectron2). You can train the captioning models with running train.py and cnn_train.py in /captioning/ directory for transformer and CNN model respectively. 
+<br>
+You can also config the model and training parameters in ./configuration.py.
 
 ```
-MODEL:
-  META_ARCHITECTURE: "HeteroGNN"
-  AUDIO_BACKBONE:
-    NAME: "Vggish"
-    PRETRAINED_ON: ""
-  VIDEO_BACKBONE:
-    NAME: "CoCLR"
-    PRETRAINED_ON: ""
-  IMAGE_BACKBONE:
-    NAME: "Resnext"
-    PRETRAINED_ON: "ImageNet"
-  HIDDEN_CHANNELS: 512
-  NUM_LAYERS: 4
-TRAINING:
-  LOSS: "FocalLoss"
-GRAPH:
-  DYNAMIC: False
-#  SPAN_OVER_TIME_AUDIO: 5
-#  AUDIO_DILATION: 3
-#  SPAN_OVER_TIME_VIDEO: 3
-#  VIDEO_DILATION: 2
-#  SPAN_OVER_TIME_BETWEEN: 6
-  SPAN_OVER_TIME_AUDIO: 6
-  AUDIO_DILATION: 3
-  SPAN_OVER_TIME_VIDEO: 4
-  VIDEO_DILATION: 4
-  SPAN_OVER_TIME_BETWEEN: 3
-  NORMALIZE: False
-  SELF_LOOPS: False
-  FUSION_LAYERS: []
-DATASETS:
-  TRAIN_RATIO: 0.7
-  EVAL_RATIO: 0.1
-  TEST_RATIO: 0.2
-#  TRAIN_PATH: 'data/AudioSet/train/Output_clip_len_1.0_audio_10/AudioSet_embedds_all.h5'
-  TRAIN_PATH: 'data/AudioSet/train/Output_clip_len_0.25_audio_101/AudioSet_embedds_all.h5'
-  TEST_PATH: 'data/AudioSet/eval/Output_clip_len_0.25_audio_101/AudioSet_embedds_all.h5'
-#  TEST_PATH: 'data/AudioSet/eval/Output_clip_len_1.0_audio_10/AudioSet_embedds_all.h5'
-TEST:
-  MAX_PATIENCE: 5
-  EVAL_PERIOD: 250
-DATALOADER:
-  BATCH_SIZE: 32
-  STRATIFIED_SPLIT: True
-SOLVER:
-  BASE_LR: 0.005
-  STEPS: ()
-  MAX_ITER: 100000
-  WARMUP_ITERS: 1000
-INPUT:
-  MIN_SIZE_TRAIN: (640, 672, 704, 736, 768, 800)
-VERSION: 0
-SEED: 1
+...
 ```
 
 <br>
@@ -118,14 +68,13 @@ SEED: 1
 
 [//]: # ([ArXiv's paper]&#40;https://arxiv.org/pdf/2008.02063&#41;)
 ```
-@inproceedings{shirian2022visually,
-  title={Visually-aware Acoustic Event Detection using Heterogeneous Graphs},
-  author={Shirian, Amir, Somandepalli, Krishna, Sanchez, Victor,  and Guha, Tanaya},
-  booktitle={Proc. Interspeech 2022},
-  year={2022}
+@inproceedings{feng2021curation,
+  title={Curation of the CANDID-PTX Dataset with Free-Text Reports},
+  author={Sijing Feng, Damian Azzollini, Ji Soo Kim, Cheng-Kai Jin, Simon P. Gordon, Jason Yeoh, Eve Kim, Mina Han, Andrew Lee, Aakash Patel, Joy Wu, Martin Urschler, Amy Fong, Cameron Simmers, Gregory P. Tarr, Stuart Barnard, Ben Wilson},
+  booktitle={Radiology: Artificial Intelligence},
+  year={2021}
 }
 ```
-
 
 
 <br><br><br>

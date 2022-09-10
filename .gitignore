@@ -4,7 +4,19 @@ balloon/
 catr_test/
 extra/
 __MACOSX/
+segmentation/data/CANDID_PTX/
+segmentation/data/ChestX_Det/
+segmentation/wandb/
+segmentation/trained_models/
+segmentation/Results/
+captioning/Results/
+captioning/trained_models/
+captioning/wandb/
 
 # files
 balloon_dataset.zip
 checkpoint.pth
+wandb_config.yaml
+
+# debug files
+*.pyc
