@@ -89,7 +89,7 @@ def train(config):
 
     # load dataloader
     training_dataloader, validation_dataloader, test_dataloader = get_data_loader(
-        image_path=config.args.data_path + "/dataset",
+        image_path=config.args.data_path + "/images",
         report_address=config.args.data_path + "/Pneumothorax_reports.csv",
         instance_uid_adress=config.args.data_path + "/Pneumothorax_reports.csv",
         batch_size=config.batch_size,

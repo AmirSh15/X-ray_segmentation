@@ -8,7 +8,6 @@ import pydicom as dicom
 import spacy
 import torch
 import torchvision as tv
-# from catr_test.predict import tokenizer
 import torchvision.transforms.functional as TF
 from torch import nn
 from torch.nn.utils.rnn import pad_sequence
@@ -165,12 +164,6 @@ def build_dataset(config, mode="training"):
 def load_data(report_address, instance_uid_adress, image_path):
     report_file = pd.read_csv(report_address, usecols=["Report"], encoding="utf-8")
     instance_uid = pd.read_csv(instance_uid_adress, usecols=["SOPInstanceUID"])
-
-    # report_file= pd.read_csv("/media/amir_shirian/Amir/Mona/Segmentation/Pneumothorax_reports.csv", usecols=['Report'], encoding='utf-8')
-    # instance_uid = pd.read_csv("/media/amir_shirian/Amir/Mona/Segmentation/Pneumothorax_reports.csv", usecols=['SOPInstanceUID'])
-    # print(instanceuid)
-    # print(len(report))
-    # print(len(instanceuid))
 
     lines = []
     reports = []
@@ -476,42 +469,13 @@ def get_data_loader(
         num_workers=trf_config.num_workers,
     )
 
-    # train_dataloader = DataLoader(
-    #     training_data,
-    #     batch_size=batch_size,
-    #     shuffle=True,
-    #     collate_fn=MyCollate(pad_idx=pad_idx),
-    #     num_workers=num_workers,
-    # )
-    # valid_dataloader = DataLoader(
-    #     validation_data,
-    #     batch_size=batch_size,
-    #     shuffle=False,
-    #     collate_fn=MyCollate(pad_idx=pad_idx),
-    #     num_workers=num_workers,
-    # )
-    # test_dataloader = DataLoader(
-    #     test_data,
-    #     batch_size=batch_size,
-    #     shuffle=False,
-    #     collate_fn=MyCollate(pad_idx=pad_idx),
-    #     num_workers=num_workers,
-    # )
-
-    # image, report = next(iter(train_dataloader))
-    # # print(report)
-    # text_report = train_dataloader.dataset.dataset.vocab.denumericalize(report[:, 0].detach().cpu().numpy())
-    # plt.imshow(image[0].detach().cpu().numpy())
-    # plt.title(text_report)
-    # plt.show()
-    # print(image.shape)
     return train_dataloader, valid_dataloader, test_dataloader
 
 
 if __name__ == "__main__":
     training_dataloader, validation_dataloader, test_dataloader = get_data_loader(
-        report_address="/media/amir_shirian/Amir/Mona/Segmentation/Pneumothorax_reports.csv",
-        instance_uid_adress="/media/amir_shirian/Amir/Mona/Segmentation/Pneumothorax_reports.csv",
+        report_address=trf_config.args.data_path+"/Pneumothorax_reports.csv",
+        instance_uid_adress=trf_config.args.data_path+"/Pneumothorax_reports.csv",
         batch_size=32,
     )
     print((len(training_dataloader), len(validation_dataloader), len(test_dataloader)))

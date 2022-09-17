@@ -124,6 +124,10 @@ def detectron_config(ctgry_pre_address=""):
         "--data_path", type=str, default='./data', help='data path for captioning model (not used in segmentation project)'
     )
     parser.add_argument(
+        "--seg_data_path", type=str, default='../segmentation/data',
+        help='segmentation data path for dataloader in building backbone of captioning model'
+    )
+    parser.add_argument(
         "--enable_wab", type=bool, default=True, help="enable weight and bias"
     )
     parser.add_argument(
@@ -217,7 +221,8 @@ def detectron_config(ctgry_pre_address=""):
     # cfg.DATASETS.TEST = ('val',)
     cfg.DATASETS.TEST = ()
     cfg.DATASETS.TRAIN = ("train",)
-    cfg.DATALOADER.NUM_WORKERS = 8
+    # cfg.DATALOADER.NUM_WORKERS = 8
+    cfg.DATALOADER.NUM_WORKERS = args.num_workers
 
     # SAVE MODEL
     type_path = (
@@ -259,7 +264,9 @@ class transformers_config:
             ctgry_pre_address="segmentation/"
         )
         self.backbone_name = self.backbone_cfg["MODEL"]["WEIGHTS"].split("/")[-3]
-        self.args.data_path = "/media/amir_shirian/abd1fa2e-8fdf-46e4-9dbf-dc0a070ba9b6/home/user/Desktop/Segmentation"
+        # self.args.data_path = "/media/amir_shirian/abd1fa2e-8fdf-46e4-9dbf-dc0a070ba9b6/home/user/Desktop/Segmentation"
+        self.args.data_path = str(input("Type the data address for image captioning model: ") or "/media/amir_shirian/abd1fa2e-8fdf-46e4-9dbf-dc0a070ba9b6/home/user/Desktop/Segmentation")
+        self.args.seg_data_path = str(input("Type the segmentation data address for building backbone of image captioning model: ") or "../segmentation/data")
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.RESIZE = 512  # 356
@@ -297,7 +304,8 @@ class transformers_config:
         # Basic
         self.device = "cuda"
         # self.seed = 42
-        self.num_workers = 8
+        # self.num_workers = 8
+        self.num_workers = int(input("Type the number of workers for image captioning model: ") or 8)
         self.save_dir = "./trained_models/"
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)

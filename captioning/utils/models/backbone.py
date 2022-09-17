@@ -128,6 +128,7 @@ class Backbone(BackboneBase):
         train_backbone: bool,
         return_interm_layers: bool,
         dilation: bool,
+        seg_data_path: str,
     ):
         # backbone2 = getattr(torchvision.models, name)(
         #     replace_stride_with_dilation=[False, False, dilation],
@@ -144,7 +145,8 @@ class Backbone(BackboneBase):
             DatasetCatalog.register(
                 d,
                 lambda d=d: load_data(
-                    backbone_cfg, portion=d, pre_address="../segmentation/"
+                    # backbone_cfg, portion=d, pre_address="../segmentation/data"
+                    backbone_cfg, portion=d, pre_address=seg_data_path
                 ),
             )
             MetadataCatalog.get(d).set(thing_classes=backbone_cfg.CATEGORIES)
@@ -189,6 +191,7 @@ def build_backbone(config):
         train_backbone,
         return_interm_layers,
         config.dilation,
+        config.args.seg_data_path,
     )
     model = Joiner(backbone, position_embedding)
     model.num_channels = backbone.num_channels
